@@ -16,6 +16,10 @@ export const initailState = {
   st_productThumbnailLoading: false,
   st_productThumbnailDone: false,
   st_productThumbnailError: null,
+  //
+  st_productCreateLoading: false,
+  st_productCreateDone: false,
+  st_productCreateError: null,
 };
 
 export const PRODUCT_LIST_REQUEST = "PRODUCT_LIST_REQUEST";
@@ -29,6 +33,10 @@ export const PRODUCT_TOP_TOGGLE_FAILURE = "PRODUCT_TOP_TOGGLE_FAILURE";
 export const PRODUCT_THUMBNAIL_REQUEST = "PRODUCT_THUMBNAIL_REQUEST";
 export const PRODUCT_THUMBNAIL_SUCCESS = "PRODUCT_THUMBNAIL_SUCCESS";
 export const PRODUCT_THUMBNAIL_FAILURE = "PRODUCT_THUMBNAIL_FAILURE";
+
+export const PRODUCT_CREATE_REQUEST = "PRODUCT_CREATE_REQUEST";
+export const PRODUCT_CREATE_SUCCESS = "PRODUCT_CREATE_SUCCESS";
+export const PRODUCT_CREATE_FAILURE = "PRODUCT_CREATE_FAILURE";
 
 export const CREATE_MODAL_TOGGLE = "CREATE_MODAL_TOGGLE";
 
@@ -92,6 +100,26 @@ const reducer = (state = initailState, action) =>
         draft.st_productThumbnailLoading = false;
         draft.st_productThumbnailDone = false;
         draft.st_productThumbnailError = action.data;
+        break;
+
+      ////////
+
+      case PRODUCT_CREATE_REQUEST:
+        draft.st_productCreateLoading = true;
+        draft.st_productCreateDone = false;
+        draft.st_productCreateError = null;
+        break;
+
+      case PRODUCT_CREATE_SUCCESS:
+        draft.st_productCreateLoading = false;
+        draft.st_productCreateDone = true;
+        draft.st_productCreateError = null;
+        break;
+
+      case PRODUCT_CREATE_FAILURE:
+        draft.st_productCreateLoading = false;
+        draft.st_productCreateDone = false;
+        draft.st_productCreateError = action.data;
         break;
 
       ////////

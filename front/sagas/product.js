@@ -13,6 +13,10 @@ import {
   PRODUCT_THUMBNAIL_REQUEST,
   PRODUCT_THUMBNAIL_SUCCESS,
   PRODUCT_THUMBNAIL_FAILURE,
+  //
+  PRODUCT_CREATE_REQUEST,
+  PRODUCT_CREATE_SUCCESS,
+  PRODUCT_CREATE_FAILURE,
 } from "../reducers/product";
 
 // SAGA AREA ********************************************************************************************************
@@ -90,6 +94,31 @@ function* productThumbnail(action) {
 // ******************************************************************************************************************
 // ******************************************************************************************************************
 
+// SAGA AREA ********************************************************************************************************
+// ******************************************************************************************************************
+function productCreateAPI(data) {
+  return axios.post(`/api/product/create`, data);
+}
+
+function* productCreate(action) {
+  try {
+    const result = yield call(productCreateAPI, action.data);
+    yield put({
+      type: PRODUCT_CREATE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: PRODUCT_CREATE_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ******************************************************************************************************************
+// ******************************************************************************************************************
+
 //////////////////////////////////////////////////////////////
 
 function* watchProductList() {
@@ -104,6 +133,10 @@ function* watchProductThumbnail() {
   yield takeLatest(PRODUCT_THUMBNAIL_REQUEST, productThumbnail);
 }
 
+function* watchProductCreate() {
+  yield takeLatest(PRODUCT_CREATE_REQUEST, productCreate);
+}
+
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
@@ -112,6 +145,7 @@ export default function* productTypeSaga() {
     fork(watchProductList),
     fork(watchProductTopToggle),
     fork(watchProductThumbnail),
+    fork(watchProductCreate),
     //
   ]);
 }

@@ -1,7 +1,16 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import AdminLayout from "../../components/AdminLayout";
 import AdminTitle from "../../components/AdminTitle";
-import { Button, message, Switch, Table, Modal } from "antd";
+import {
+  Button,
+  message,
+  Switch,
+  Table,
+  Modal,
+  Form,
+  Input,
+  Select,
+} from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { PRODUCT_TYPE_REQUEST } from "../../reducers/productType";
 import {
@@ -9,8 +18,38 @@ import {
   PRODUCT_TOP_TOGGLE_REQUEST,
   CREATE_MODAL_TOGGLE,
   PRODUCT_THUMBNAIL_REQUEST,
+  PRODUCT_CREATE_REQUEST,
 } from "../../reducers/product";
 import styled from "styled-components";
+
+const SubmitWrapper = styled.div`
+  width: 100%;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+`;
+
+const CreateTitle = styled.div`
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 30px;
+  margin-bottom: 15px;
+
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    width: 80px;
+    border-bottom: 8px solid green;
+    border-radius: 10px;
+    bottom: 5px;
+    left: 5px;
+    opacity: 0.4;
+  }
+`;
 
 const PreviewImageWrapper = styled.div`
   width: 100%;
@@ -72,9 +111,24 @@ const Product = () => {
     previewTh,
     st_productThumbnailLoading,
     st_productThumbnailDone,
+    st_productCreateDone,
   } = useSelector((state) => state.product);
+
   const dispatch = useDispatch();
   const thImageRef = useRef();
+
+  useEffect(() => {
+    if (st_productCreateDone) {
+      message.success("새로운 상품이 등록되었습니다.");
+
+      createModalToggleHandler();
+
+      dispatch({
+        type: PRODUCT_LIST_REQUEST,
+        data: { typeId: selectType },
+      });
+    }
+  }, [st_productCreateDone]);
 
   useEffect(() => {
     if (st_productThumbnailDone) {
@@ -199,6 +253,29 @@ const Product = () => {
     });
   }, []);
 
+  const productCreateSubmitHandler = useCallback(
+    (data) => {
+      if (!previewTh) {
+        return message.error("썸네일을 먼저 선택해주세요.");
+      }
+
+      console.log(data);
+
+      dispatch({
+        type: PRODUCT_CREATE_REQUEST,
+        data: {
+          thumbnail: previewTh,
+          title: data.title,
+          type: data.type,
+          content: data.content,
+          price: data.price,
+          dc: data.dc,
+        },
+      });
+    },
+    [previewTh]
+  );
+
   return (
     <AdminLayout>
       <AdminTitle title="상품 관리" />
@@ -237,6 +314,7 @@ const Product = () => {
         onCancel={createModalToggleHandler}
         width={"800px"}
       >
+        <CreateTitle>썸네일 등록</CreateTitle>
         <PreviewImageWrapper>
           <PreviewImageBox>
             {previewTh ? (
@@ -267,6 +345,52 @@ const Product = () => {
             </Button>
           </PreviewImageInput>
         </PreviewImageWrapper>
+        <CreateTitle>상품정보 등록</CreateTitle>
+        {/* antd는 화면을 24등분 함*/}
+        <Form
+          labelCol={{ span: 4 }}
+          wrapperCol={{ span: 20 }}
+          onFinish={productCreateSubmitHandler}
+        >
+          <Form.Item label="상품명" name="title" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+
+          <Form.Item label="상품유형" name="type" rules={[{ required: true }]}>
+            <Select>
+              {types &&
+                types.map((data) => {
+                  return (
+                    <Select.Option key={data.id} value={data.id}>
+                      {data.value}
+                    </Select.Option>
+                  );
+                })}
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="상품금액" name="price" rules={[{ required: true }]}>
+            <Input type="number" />
+          </Form.Item>
+
+          <Form.Item label="할인율" name="dc" rules={[{ required: true }]}>
+            <Input type="number" />
+          </Form.Item>
+
+          <Form.Item
+            label="상품설명"
+            name="content"
+            rules={[{ required: true }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <SubmitWrapper>
+            <Button size="small" type="primary" htmlType="submit">
+              상품등록
+            </Button>
+          </SubmitWrapper>
+        </Form>
       </Modal>
     </AdminLayout>
   );

@@ -85,4 +85,24 @@ router.patch("/update/top", async (req, res, next) => {
   }
 });
 
+router.post("/create", async (req, res, next) => {
+  const { thumbnail, title, type, content, price, dc } = req.body;
+
+  try {
+    await Product.create({
+      thumbnail: thumbnail,
+      title: title,
+      content: content,
+      price: parseInt(price),
+      discount: parseInt(dc),
+      ProductTypeId: parseInt(type),
+    });
+
+    return res.status(201).json({ result: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(401).send("상품을 추가할 수 없습니다.");
+  }
+});
+
 module.exports = router;
